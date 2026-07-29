@@ -66,6 +66,10 @@ Settings → Pages → Deploy from branch → `main` / root.
 
 ## Editing the content
 
+> **After changing any file in `assets/`, bump the `?v=` number on all four asset links in
+> `index.html`.** GitHub Pages serves assets with a ten minute `max-age`, so without a new version
+> string returning visitors keep the cached copy and will not see the change.
+
 | File | Contains |
 | --- | --- |
 | `assets/data.js` | All narrative content — steps, deep dives, observations, recommendations |
