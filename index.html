@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cox Communications &mdash; Current vs. Future State: Frontier AI Readiness</title>
+<meta name="description" content="Current and future state process flows for Security Operations, Vulnerability Management and Application Security, showing readiness to adopt frontier AI models.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230A7CE0'/><text x='16' y='22' font-size='14' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>C</text></svg>">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-state="current">
+
+<!-- ======================= HEADER ======================= -->
+<header class="topbar">
+  <div class="topbar-accent"></div>
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">COX</div>
+      <div class="brand-text">
+        <h1>Current vs. Future State &mdash; Frontier AI Readiness</h1>
+        <p>Security Operations &middot; Vulnerability Management &middot; Application Security</p>
+      </div>
+    </div>
+    <span class="chip-draft">DRAFT</span>
+    <div class="topbar-spacer"></div>
+    <button class="btn btn-primary" id="dd-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Deep dive
+    </button>
+  </div>
+</header>
+
+<!-- ======================= CONTROLS ======================= -->
+<div class="controls">
+  <div class="control-group">
+    <span class="control-label">Capability area</span>
+    <div class="tabs" id="tabs" role="tablist"></div>
+  </div>
+
+  <div class="control-group">
+    <span class="control-label">State</span>
+    <div class="toggle" id="toggle" data-state="current">
+      <div class="toggle-thumb"></div>
+      <button id="btn-current" aria-pressed="true">Current state</button>
+      <button id="btn-future"  aria-pressed="false">Future state</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="hero"></section>
+
+<!-- ======================= FLOW ======================= -->
+<section class="flow-wrap" id="flow"></section>
+
+<!-- ======================= LEGEND ======================= -->
+<div class="legend">
+  <div class="legend-item"><span class="legend-swatch" style="border-left-color:var(--k-process)"></span>Process</div>
+  <div class="legend-item"><span class="legend-swatch" style="border-left-color:var(--k-tool)"></span>Tool-driven</div>
+  <div class="legend-item"><span class="legend-swatch" style="border-left-color:var(--k-ai)"></span>AI / agentic</div>
+  <div class="legend-item"><span class="legend-swatch" style="border-left-color:var(--k-decision)"></span>Decision / gate</div>
+  <div class="legend-item"><span class="legend-swatch" style="border-left-color:var(--k-sor)"></span>System of record</div>
+  <div class="legend-item"><span class="tag tag-new">New</span>New or changed in future state</div>
+  <div class="legend-item">
+    <svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--k-ai)" stroke-width="2" stroke-dasharray="6 4"/></svg>
+    AI / parallel flow
+  </div>
+  <div class="legend-item" style="margin-left:auto;color:var(--faint)">Hover any step to preview &middot; click for the full deep dive</div>
+</div>
+
+<!-- ======================= OBSERVATIONS ======================= -->
+<section class="obs-wrap">
+  <div class="section-head">
+    <h3 id="obs-title">Current state observations</h3>
+    <span class="rule"></span>
+  </div>
+  <div class="obs-grid" id="obs"></div>
+</section>
+
+<footer class="footer">
+  <span>Cox Communications &middot; Draft for discussion &middot; Not for external distribution</span>
+  <span class="no-print">Keyboard: Esc closes &middot; Arrow keys move between steps</span>
+</footer>
+
+<!-- ======================= HOVER POPOVER ======================= -->
+<div class="pop" id="pop" role="tooltip"></div>
+
+<!-- ======================= DRAWER ======================= -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Step deep dive">
+  <div class="drawer-head" id="drawer-head"></div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-nav"  id="drawer-nav"></div>
+</aside>
+
+<!-- ======================= MODAL ======================= -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Recommendations deep dive">
+  <div class="modal-card">
+    <div class="modal-head" id="modal-head"></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/layout.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
