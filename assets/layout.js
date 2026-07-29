@@ -72,6 +72,15 @@ const GEO = {
   bandGap:  18
 };
 
+/* Swimlane header ramp — blue through teal to green, mirroring the
+   banner rule, so colour tracks progress through the lifecycle. */
+const LANE_RAMP = ['#1F4E79', '#255F91', '#1C7F8A', '#1E8A6E', '#2F8B4C'];
+
+function laneColor(i, total){
+  if (total < 2) return LANE_RAMP[0];
+  return LANE_RAMP[Math.round(i / (total - 1) * (LANE_RAMP.length - 1))];
+}
+
 /* ---- badge wording per node kind -------------------------------- */
 const KIND_BADGE = {
   process:  'Manual',

@@ -141,7 +141,8 @@ function renderFlow(){
     <div class="lane-col" style="left:${g.x(i)}px;top:${GEO.headH + 8}px;width:${g.laneW}px;height:${bodyH - GEO.headH - 16}px"></div>`).join('');
 
   const heads = f.phases.map((p, i) => `
-    <div class="lane-head" style="left:${g.x(i)}px;top:8px;width:${g.laneW}px;height:${GEO.headH - 12}px">${esc(p)}</div>`).join('');
+    <div class="lane-head" style="left:${g.x(i)}px;top:8px;width:${g.laneW}px;height:${GEO.headH - 12}px;
+         background:${laneColor(i, f.phases.length)}">${esc(p)}</div>`).join('');
 
   const groups = (lay.groups || []).map(gr => {
     const bs = gr.nodes.map(n => boxes[n]).filter(Boolean);
