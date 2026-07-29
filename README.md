@@ -21,13 +21,21 @@ capability to be ready to use frontier AI models.
 | Current vs. Future switch | Swap the flow for the selected area |
 | Hover a step | Floating preview with the summary and the first few points |
 | Click a step | Full deep dive in the right-hand panel |
+| Click a swimlane header | Opens the first step in that lane |
+| Click the data foundation band | Explains what sits underneath, and which steps depend on it |
 | Arrow keys | Move between steps once one is selected |
-| Recommendations deep dive | Modal with observations, where they apply, and what to build |
+| Deep dive (top bar) | Observations, where they apply, and the what-to-build matrix |
+| Observation chips | Jump straight from an observation to the step it refers to |
 | Legend | Node types and connector conventions |
 | Zoom / Pan | Scale the canvas; it scrolls once larger than the viewport |
 | Copy as markdown | Puts a single step, or a whole area, on the clipboard |
 
-Deep links are supported: `#/appsec/future/7` opens AppSec future state, step 7.
+Deep links are supported: `#/appsec/future/7` opens AppSec future state with step 7's deep dive
+already open, and `#/soc/future/foundation` opens the data foundation.
+
+Steps carry an internal number (`n`) used for deep links and cross-references, but it is not shown
+on the diagram. The same number means different things in the current and future flows, so putting
+it on the cards made the two views look falsely comparable. Sequence is carried by the connectors.
 
 ## Diagram conventions
 

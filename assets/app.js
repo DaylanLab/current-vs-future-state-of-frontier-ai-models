@@ -141,8 +141,9 @@ function renderFlow(){
     <div class="lane-col" style="left:${g.x(i)}px;top:${GEO.headH + 8}px;width:${g.laneW}px;height:${bodyH - GEO.headH - 16}px"></div>`).join('');
 
   const heads = f.phases.map((p, i) => `
-    <div class="lane-head" style="left:${g.x(i)}px;top:8px;width:${g.laneW}px;height:${GEO.headH - 12}px;
-         background:${laneColor(i, f.phases.length)}">${esc(p)}</div>`).join('');
+    <button class="lane-head" data-lane="${i}" title="Open the first step in ${esc(p)}"
+         style="left:${g.x(i)}px;top:8px;width:${g.laneW}px;height:${GEO.headH - 12}px;
+         background:${laneColor(i, f.phases.length)}">${esc(p)}</button>`).join('');
 
   const groups = (lay.groups || []).map(gr => {
     const bs = gr.nodes.map(n => boxes[n]).filter(Boolean);
@@ -177,12 +178,12 @@ function renderFlow(){
   if (hasBand){
     const label = (lay.band && lay.band.label) || 'Data Foundation';
     const note  = (lay.band && lay.band.nodes) ? '' : `
-      <div class="band-note" style="left:60px;top:0;bottom:0">
+      <button class="band-note" data-focus="foundation" style="left:52px;top:0;bottom:0;right:14px">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
           <ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.66 3.6 3 8 3s8-1.34 8-3v-13"/>
           <path d="M4 12c0 1.66 3.6 3 8 3s8-1.34 8-3"/></svg>
         <span>${esc(f.foundation || '')}</span>
-      </div>`;
+      </button>`;
     band = `<div class="band" style="left:${GEO.padX}px;top:${bandY}px;width:${GEO.canvasW - GEO.padX*2}px;height:${GEO.bandH}px">
       <div class="band-label"><span>${esc(label)}</span></div>${note}
     </div>`;
@@ -228,7 +229,7 @@ function nodeHTML(n, b, delay){
         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconFor(n)}</svg></span>
       <span class="vbadge${n.isNew ? ' is-new' : ''}"><i></i>${esc(n.isNew ? 'New' : KIND_BADGE[n.k])}</span>
     </span>
-    <span class="vtitle"><em>${n.n}</em>${esc(n.t)}</span>
+    <span class="vtitle">${esc(n.t)}</span>
     <span class="vsub">${esc(n.s)}</span>
   </button>`;
 }
@@ -338,6 +339,30 @@ function renderSide(){
     return;
   }
 
+  if (state.node === 'foundation'){
+    $('#side-eyebrow').textContent = 'Data foundation';
+    $('#side-body').innerHTML = `
+      <div class="sd-crumb">${esc(d.short)} / ${esc(f.label)}</div>
+      <h2>Centralized, normalized data foundation</h2>
+      <p class="sd-sum">${esc(f.foundation)}</p>
+      <div class="dd-section">
+        <h4>Why it sits underneath everything</h4>
+        <ul class="dd-list">
+          <li>Every AI capability above retrieves from here, so retrieval quality sets the ceiling on all of them.</li>
+          <li>Without one schema, each use case rebuilds its own translation layer and none of them agree.</li>
+          <li>Sources left outside it are invisible to any agent, which quietly caps how much can be automated.</li>
+        </ul>
+      </div>
+      <div class="dd-section">
+        <h4>Steps that depend on it</h4>
+        <ul class="dd-list">${f.nodes.filter(x => x.k === 'ai')
+          .map(x => `<li><button class="link-step" data-node="${x.n}">${esc(x.t)}</button></li>`).join('')}</ul>
+      </div>`;
+    $('#side-foot').innerHTML = `<button class="btn" id="clear-node">Back to overview</button>`;
+    $('#clear-node').onclick = () => selectNode(null);
+    return;
+  }
+
   const n = nodeBy(state.node);
   if (!n){ state.node = null; return renderSide(); }
 
@@ -348,7 +373,7 @@ function renderSide(){
 
   $('#side-eyebrow').textContent = f.phases[n.p] || f.label;
   $('#side-body').innerHTML = `
-    <div class="sd-crumb">${esc(d.short)} / ${esc(f.label)} / step ${n.n}</div>
+    <div class="sd-crumb">${esc(d.short)} / ${esc(f.label)} / ${esc(f.phases[n.p] || '')}</div>
     <h2>${esc(n.t)}</h2>
     <div class="sd-badges ${'k-' + n.k}">${badges.join('')}</div>
     <p class="sd-sum">${esc(n.s)}</p>
@@ -388,16 +413,23 @@ function selectNode(num){
 /* ================================================================
    MODAL
    ================================================================ */
-function obsGrid(list, future){
-  return `<div class="obs-grid">${list.map(o => `
-    <div class="obs${future ? ' obs-future' : ''}">
-      <div class="obs-top">
-        <span class="obs-tag">${esc(o.tag)}</span>
-        ${o.ref ? `<span class="obs-refs">${o.ref.split(' ').map(r => `<span class="obs-ref">${esc(r)}</span>`).join('')}</span>` : ''}
-      </div>
+/* Observation cards. The step references render as named, clickable chips
+   rather than bare numbers — a number on its own tells you nothing once
+   the diagram itself stops showing them. */
+function obsGrid(list, view){
+  const f = domain()[view];
+  return `<div class="obs-grid">${list.map(o => {
+    const refs = (o.ref || '').split(' ').filter(Boolean)
+      .map(r => f.nodes.find(x => x.n === +r))
+      .filter(Boolean);
+    return `<div class="obs${view === 'future' ? ' obs-future' : ''}">
+      <div class="obs-top"><span class="obs-tag">${esc(o.tag)}</span></div>
       <h4>${esc(o.t)}</h4>
       <p>${esc(o.b)}</p>
-    </div>`).join('')}</div>`;
+      ${refs.length ? `<div class="obs-refs">${refs.map(n =>
+        `<button class="obs-ref" data-goto="${view}:${n.n}" title="Open this step">${esc(n.t)}</button>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('')}</div>`;
 }
 
 /* The recommendations table from the deck: workstreams across the top,
@@ -437,10 +469,10 @@ function openModal(){
 
   $('#modal-body').innerHTML = `
     <div class="section-head"><h3>Current state observations</h3><span class="rule"></span></div>
-    ${obsGrid(d.current.observations, false)}
+    ${obsGrid(d.current.observations, 'current')}
 
     <div class="section-head" style="margin-top:26px"><h3>Recommendations: where they apply</h3><span class="rule"></span></div>
-    ${obsGrid(d.future.observations, true)}
+    ${obsGrid(d.future.observations, 'future')}
 
     <div class="section-head" style="margin-top:28px"><h3>Recommendations deep dive</h3><span class="rule"></span></div>
     ${recMatrix(d.recommendations)}`;
@@ -526,7 +558,8 @@ function readHash(){
   const p = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   if (p[0] && DATA[p[0]]) state.domain = p[0];
   if (p[1] === 'current' || p[1] === 'future') state.view = p[1];
-  if (p[2] && !isNaN(+p[2])) state.node = +p[2];
+  if (p[2] === 'foundation') state.node = 'foundation';
+  else if (p[2] && !isNaN(+p[2])) state.node = +p[2];
 }
 
 function render(){
@@ -555,8 +588,32 @@ function setView(v){
 document.addEventListener('click', e => {
   const tab = e.target.closest('[data-domain]');
   if (tab){ setDomain(tab.dataset.domain); return; }
+
+  /* jump from an observation in the modal straight to the step it names */
+  const goto = e.target.closest('[data-goto]');
+  if (goto){
+    const [view, num] = goto.dataset.goto.split(':');
+    closeModal();
+    if (view !== state.view){ state.view = view; state.node = null; render(); }
+    selectNode(+num);
+    return;
+  }
+
   const node = e.target.closest('[data-node]');
   if (node){ selectNode(+node.dataset.node); return; }
+
+  const focus = e.target.closest('[data-focus]');
+  if (focus){ selectNode(focus.dataset.focus); return; }
+
+  /* a lane header opens the first step in that lane */
+  const lane = e.target.closest('[data-lane]');
+  if (lane){
+    const li = +lane.dataset.lane;
+    const first = flow().nodes.filter(n => n.p === li).sort((a, b) => a.n - b.n)[0];
+    if (first) selectNode(first.n);
+    return;
+  }
+
   if (!e.target.closest('#legend-pop') && !e.target.closest('#legend-btn'))
     $('#legend-pop').classList.remove('open');
 });
@@ -597,14 +654,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('#zoom-out').onclick = () => setZoom(-0.15);
   $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
 
+  $('#dd-top').onclick = openModal;
   $('#side-toggle').onclick = () => {
     document.body.classList.remove('side-open');
     document.body.classList.toggle('side-collapsed');
     setTimeout(fitCanvas, 300);
-  };
-  $('#menu-btn').onclick = () => {
-    document.body.classList.toggle('side-open');
-    document.body.classList.remove('side-collapsed');
   };
 
   $('#legend-btn').onclick = e => {
