@@ -1,6 +1,6 @@
 # Current vs. Future State of Frontier AI Models
 
-An interactive process-flow diagram for **Cox Communications** covering three security capability areas:
+An interactive process-flow navigator covering three security capability areas:
 
 - **Security Operations (SOC)**
 - **Vulnerability Management**
@@ -9,8 +9,6 @@ An interactive process-flow diagram for **Cox Communications** covering three se
 Each area has a **current state** and a **future state** flow, showing what has to change for the
 capability to be ready to use frontier AI models.
 
-**Status: DRAFT — for discussion, not for external distribution.**
-
 ---
 
 ## Using it
@@ -18,13 +16,14 @@ capability to be ready to use frontier AI models.
 | Action | What it does |
 | --- | --- |
 | Capability area tabs | Switch between SOC, Vulnerability Management and AppSec |
-| Current / Future toggle | Swap the flow, the readiness meter and the observations |
+| Current vs. Future switch | Swap the flow for the selected area |
 | Hover a step | Floating preview with the summary and the first few points |
-| Click a step | Full deep dive in the side panel |
-| Arrow keys | Move between steps while the panel is open |
-| Deep dive button | Five-workstream recommendations table for the current area |
-| Copy as markdown | Puts the whole area (or a single step) on the clipboard |
-| Print | Prints the recommendations table |
+| Click a step | Full deep dive in the right-hand panel |
+| Arrow keys | Move between steps once one is selected |
+| Recommendations deep dive | Modal with observations, where they apply, and what to build |
+| Legend | Node types and connector conventions |
+| Zoom / Pan | Scale the canvas; it scrolls once larger than the viewport |
+| Copy as markdown | Puts a single step, or a whole area, on the clipboard |
 
 Deep links are supported: `#/appsec/future/7` opens AppSec future state, step 7.
 
@@ -32,13 +31,12 @@ Deep links are supported: `#/appsec/future/7` opens AppSec future state, step 7.
 
 | | |
 | --- | --- |
-| Blue box | Process step |
-| Green box | Tool-driven step |
-| Purple box | AI or agentic step |
-| Amber diamond | Decision or gate |
+| White card | A step, badged `Manual`, `Tool-Driven`, `AI-Automated` or `System of Record` |
+| Rose diamond | Decision or gate, with labelled branches |
 | Solid arrow | Primary flow |
-| Dashed arrow | AI / parallel flow |
-| `NEW` chip | New or changed in the future state |
+| Dashed purple arrow | AI / parallel flow |
+| `NEW` ribbon | New or changed in the future state |
+| Purple band | Parallel AI track, or the shared data foundation |
 
 ---
 
@@ -60,8 +58,8 @@ Settings → Pages → Deploy from branch → `main` / root.
 
 | File | Contains |
 | --- | --- |
-| `assets/data.js` | All narrative content — steps, deep dives, observations, recommendations, readiness scores |
-| `assets/layout.js` | Diagram geometry — which row each step sits in, connectors, dashed groups |
+| `assets/data.js` | All narrative content — steps, deep dives, observations, recommendations |
+| `assets/layout.js` | Diagram geometry — rows, connectors, bands, icons, badge wording |
 | `assets/app.js` | Rendering and interaction |
 | `assets/styles.css` | Theme |
 | `index.html` | Page shell |
@@ -73,7 +71,7 @@ Each step in `data.js` looks like:
 
 ```js
 { n:7, p:2, k:'ai', isNew:true, t:'Title', badge:'optional chip',
-  s:'One-line summary shown on the box.',
+  s:'One-line summary shown on the card.',
   d:{
     'Section heading': ['bullet', 'bullet'],
     'Another heading': ['bullet']
@@ -82,10 +80,24 @@ Each step in `data.js` looks like:
 
 `n` = step number, `p` = swimlane index, `k` = `process` / `tool` / `ai` / `decision` / `sor`.
 
+In `layout.js`, `rows` places each step vertically within its lane and `edges` connects them:
+
+```js
+edges: [[1,2], [4,5,{ label:'pass' }],
+        [4,3,{ dash:true, label:'fail', route:'around', chip:true }]]
+```
+
+`route:'around'` sends a reject path out through the lane gutter, which keeps its label clear of
+the cramped gap between rows. Connector labels are collision-checked against every node box at
+render time and shifted to the first free offset, so small layout changes will not overlap text.
+
 ---
 
 ## A note on tooling names
 
 The flows use generic, industry-standard tool categories (SIEM, EDR, SAST, SCA, DAST, CMDB,
-detection-as-code, exposure analysis) rather than named products. Swap in Cox's actual stack
-before this goes in front of the client — the placeholders are deliberate, not an oversight.
+detection-as-code, exposure analysis) rather than named products. Swap in the client's actual stack
+before delivery — the placeholders are deliberate, not an oversight.
+
+There is deliberately **no maturity score**. Scoring would imply an assessment that has not been
+carried out.
