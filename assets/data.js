@@ -17,18 +17,6 @@ soc: {
   short: 'SOC',
   tagline: 'Detection, triage and response across the enterprise estate.',
 
-  readiness: {
-    dims: [
-      'Normalized data foundation',
-      'Detection coverage and authoring',
-      'Automation of repetitive work',
-      'Governed human-in-the-loop',
-      'AI efficacy measurement'
-    ],
-    current: [2, 2, 2, 3, 1],
-    future:  [5, 4, 5, 5, 4]
-  },
-
   current: {
     label: 'Current State',
     phases: ['Detection', 'Triage', 'Investigation', 'Response', 'Reporting'],
@@ -576,18 +564,6 @@ vm: {
   short: 'Vuln Mgmt',
   tagline: 'Finding, prioritizing and closing exposure across the estate.',
 
-  readiness: {
-    dims: [
-      'Asset and ownership coverage',
-      'Continuous assessment',
-      'Risk-based prioritization',
-      'Remediation automation',
-      'AI efficacy measurement'
-    ],
-    current: [2, 2, 1, 1, 1],
-    future:  [5, 5, 5, 4, 4]
-  },
-
   current: {
     label: 'Current State',
     phases: ['Discovery', 'Assessment', 'Prioritization', 'Remediation', 'Reporting'],
@@ -1052,18 +1028,6 @@ appsec: {
   name: 'Application Security',
   short: 'AppSec',
   tagline: 'Securing applications, code and agents from design through production.',
-
-  readiness: {
-    dims: [
-      'Application and API inventory',
-      'Enforceable pipeline gates',
-      'Continuous detection coverage',
-      'Remediation consistency',
-      'AI efficacy measurement'
-    ],
-    current: [2, 1, 2, 2, 1],
-    future:  [5, 5, 5, 4, 4]
-  },
 
   current: {
     label: 'Current State',
