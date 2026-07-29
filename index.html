@@ -78,24 +78,26 @@
 
 <!-- ======================= LEGEND POPOVER ======================= -->
 <div class="legend-pop" id="legend-pop">
-  <h4>Node types</h4>
+  <h4>Shapes</h4>
   <div class="legend-item"><span class="lg-box"></span>Process step</div>
   <div class="legend-item"><span class="lg-dia"></span>Decision or gate</div>
-  <div class="legend-item"><span class="lg-pill" style="background:var(--lane);color:var(--muted);border:1px solid var(--lane-line)">Manual</span>Human-performed</div>
-  <div class="legend-item"><span class="lg-pill" style="background:var(--blue-soft);color:var(--blue);border:1px solid #D3E1FE">Tool-Driven</span>Existing tooling</div>
-  <div class="legend-item"><span class="lg-pill" style="background:var(--purple-soft);color:var(--purple);border:1px solid var(--purple-line)">AI-Automated</span>Frontier model in the loop</div>
-  <div class="legend-item"><span class="lg-pill" style="background:var(--teal-soft);color:var(--teal);border:1px solid #C6F0E5">System of Record</span>Durable record</div>
 
-  <h4 style="margin-top:15px">Connectors</h4>
+  <h4 style="margin-top:16px">How a step is performed</h4>
+  <div class="legend-item"><span class="lg-dot"><i style="background:var(--ink-4)"></i>Manual</span>Human-performed</div>
+  <div class="legend-item"><span class="lg-dot"><i style="background:var(--sea)"></i>Tool-driven</span>Existing tooling</div>
+  <div class="legend-item"><span class="lg-dot"><i style="background:var(--violet)"></i>AI-automated</span>Frontier model in the loop</div>
+  <div class="legend-item"><span class="lg-dot"><i style="background:var(--navy)"></i>System of record</span>Durable record</div>
+  <div class="legend-item"><span class="lg-dot" style="color:var(--violet)"><i style="background:var(--violet)"></i>New</span>New or changed ahead</div>
+
+  <h4 style="margin-top:16px">Connectors</h4>
   <div class="legend-item">
-    <svg width="30" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="var(--edge)" stroke-width="1.8"/><path d="M26,1 L30,4 L26,7z" fill="var(--edge)"/></svg>
+    <svg width="30" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="#B6B2A9" stroke-width="1.4"/><path d="M26,1.5 L30,4 L26,6.5z" fill="#B6B2A9"/></svg>
     Primary flow
   </div>
   <div class="legend-item">
-    <svg width="30" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="var(--purple-2)" stroke-width="1.8" stroke-dasharray="5 4"/><path d="M26,1 L30,4 L26,7z" fill="var(--purple-2)"/></svg>
+    <svg width="30" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="var(--violet)" stroke-width="1.4" stroke-dasharray="4 3"/><path d="M26,1.5 L30,4 L26,6.5z" fill="var(--violet)"/></svg>
     AI / parallel flow
   </div>
-  <div class="legend-item"><span class="lg-pill" style="background:var(--purple);color:#fff">NEW</span>New or changed in future state</div>
 </div>
 
 <!-- ======================= MODAL ======================= -->

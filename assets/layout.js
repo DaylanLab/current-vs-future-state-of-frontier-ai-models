@@ -75,10 +75,10 @@ const GEO = {
 /* ---- badge wording per node kind -------------------------------- */
 const KIND_BADGE = {
   process:  'Manual',
-  tool:     'Tool-Driven',
-  ai:       'AI-Automated',
+  tool:     'Tool-driven',
+  ai:       'AI-automated',
   decision: 'Gate',
-  sor:      'System of Record'
+  sor:      'System of record'
 };
 
 /* ---- icons: keyword match on the title, falling back to kind ----- */

@@ -222,13 +222,12 @@ function nodeHTML(n, b, delay){
   }
 
   return `<button class="vnode ${cls}${act}" data-node="${n.n}" style="${pos}">
-    ${n.isNew ? `<span class="vnew">NEW</span>` : ''}
     <span class="vtop">
-      <span class="vicon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${iconFor(n)}</svg></span>
-      <span class="vbadge">${esc(KIND_BADGE[n.k])}</span>
+      <span class="vicon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconFor(n)}</svg></span>
+      <span class="vbadge${n.isNew ? ' is-new' : ''}"><i></i>${esc(n.isNew ? 'New' : KIND_BADGE[n.k])}</span>
     </span>
-    <span class="vtitle">${n.n}. ${esc(n.t)}</span>
+    <span class="vtitle"><em>${n.n}</em>${esc(n.t)}</span>
     <span class="vsub">${esc(n.s)}</span>
   </button>`;
 }
@@ -271,10 +270,10 @@ function showPop(num, el){
   const firstKey = Object.keys(n.d)[0];
 
   pop.innerHTML = `
-    <div class="pop-top">
-      ${n.isNew ? `<span class="vbadge" style="background:var(--purple);color:#fff;border-color:var(--purple)">New</span>` : ''}
-      <span class="vbadge">${esc(KIND_BADGE[n.k])}</span>
-      ${n.badge ? `<span class="vbadge">${esc(n.badge)}</span>` : ''}
+    <div class="pop-top ${'k-' + n.k}">
+      ${n.isNew ? `<span class="vbadge is-new"><i></i>New</span>` : ''}
+      <span class="vbadge"><i></i>${esc(KIND_BADGE[n.k])}</span>
+      ${n.badge ? `<span class="vbadge" style="color:var(--ink-4)">${esc(n.badge)}</span>` : ''}
     </div>
     <h4>${n.n}. ${esc(n.t)}</h4>
     <p class="pop-sum">${esc(n.s)}</p>
@@ -342,15 +341,15 @@ function renderSide(){
   if (!n){ state.node = null; return renderSide(); }
 
   const badges = [];
-  if (n.isNew) badges.push(`<span class="vbadge" style="background:var(--purple);color:#fff;border-color:var(--purple)">New</span>`);
-  badges.push(`<span class="vbadge">${esc(KIND_BADGE[n.k])}</span>`);
-  if (n.badge) badges.push(`<span class="vbadge">${esc(n.badge)}</span>`);
+  if (n.isNew) badges.push(`<span class="vbadge is-new"><i></i>New</span>`);
+  badges.push(`<span class="vbadge"><i></i>${esc(KIND_BADGE[n.k])}</span>`);
+  if (n.badge) badges.push(`<span class="vbadge" style="color:var(--ink-4)">${esc(n.badge)}</span>`);
 
   $('#side-eyebrow').textContent = f.phases[n.p] || f.label;
   $('#side-body').innerHTML = `
-    <div class="sd-crumb">${esc(d.short)} &middot; ${esc(f.label)} &middot; step ${n.n}</div>
+    <div class="sd-crumb">${esc(d.short)} / ${esc(f.label)} / step ${n.n}</div>
     <h2>${esc(n.t)}</h2>
-    <div class="sd-badges">${badges.join('')}</div>
+    <div class="sd-badges ${'k-' + n.k}">${badges.join('')}</div>
     <p class="sd-sum">${esc(n.s)}</p>
     ${Object.entries(n.d).map(([h, items]) => `
       <div class="dd-section">
@@ -400,6 +399,28 @@ function obsGrid(list, future){
     </div>`).join('')}</div>`;
 }
 
+/* The recommendations table from the deck: workstreams across the top,
+   the same four questions asked of each one down the left. */
+function recMatrix(recs){
+  const rows = [
+    { label:'The gap',       cell:r => `<p>${esc(r.gap)}</p>` },
+    { label:'What to build', cell:r => `<ul>${r.build.map(b => `<li>${esc(b)}</li>`).join('')}</ul>` },
+    { label:'Tools',         cell:r => `<div class="rm-tools">${r.tools.map(t => `<span class="rm-tool">${esc(t)}</span>`).join('')}</div>` },
+    { label:'Metrics',       cell:r => `<ul>${r.metrics.map(m => `<li>${esc(m)}</li>`).join('')}</ul>` }
+  ];
+
+  return `<div class="rec-matrix">
+    <div class="rm-corner"></div>
+    ${recs.map(r => `<div class="rm-head c-${r.color}">
+      <h3>${esc(r.t)}</h3><span class="own">${esc(r.owner)} owned</span>
+    </div>`).join('')}
+    ${rows.map(row => `
+      <div class="rm-label">${esc(row.label)}</div>
+      ${recs.map(r => `<div class="rm-cell">${row.cell(r)}</div>`).join('')}
+    `).join('')}
+  </div>`;
+}
+
 function openModal(){
   const d = domain();
   $('#modal-head').innerHTML = `
@@ -420,18 +441,8 @@ function openModal(){
     <div class="section-head" style="margin-top:26px"><h3>Recommendations: where they apply</h3><span class="rule"></span></div>
     ${obsGrid(d.future.observations, true)}
 
-    <div class="section-head" style="margin-top:26px"><h3>What to build</h3><span class="rule"></span></div>
-    <div class="rec-grid">${d.recommendations.map(r => `
-    <div class="rec c-${r.color}">
-      <div class="rec-head"><span class="own">${esc(r.owner)}</span><h3>${esc(r.t)}</h3></div>
-      <div class="rec-block"><div class="k">The gap</div><p>${esc(r.gap)}</p></div>
-      <div class="rec-block grow"><div class="k">What to build</div>
-        <ul>${r.build.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>
-      <div class="rec-block"><div class="k">Tools</div>
-        <div class="rec-tools">${r.tools.map(t => `<span class="rec-tool">${esc(t)}</span>`).join('')}</div></div>
-      <div class="rec-block"><div class="k">Metrics</div>
-        <ul>${r.metrics.map(m => `<li>${esc(m)}</li>`).join('')}</ul></div>
-    </div>`).join('')}</div>`;
+    <div class="section-head" style="margin-top:28px"><h3>Recommendations deep dive</h3><span class="rule"></span></div>
+    ${recMatrix(d.recommendations)}`;
   $('#modal-close').onclick = closeModal;
   $('#copy-dd').onclick = e => copy(domainMarkdown(d), e.target);
   $('#modal').classList.add('open');
