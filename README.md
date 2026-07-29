@@ -1,5 +1,7 @@
 # Current vs. Future State of Frontier AI Models
 
+**Live:** https://daylanlab.github.io/current-vs-future-state-of-frontier-ai-models/
+
 An interactive process-flow navigator covering three security capability areas:
 
 - **Security Operations (SOC)**
