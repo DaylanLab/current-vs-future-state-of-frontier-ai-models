@@ -72,13 +72,18 @@ const GEO = {
   bandGap:  18
 };
 
-/* Swimlane header ramp — blue through teal to green, mirroring the
-   banner rule, so colour tracks progress through the lifecycle. */
-const LANE_RAMP = ['#1F4E79', '#255F91', '#1C7F8A', '#1E8A6E', '#2F8B4C'];
+/* Swimlane header ramps. The traditional flow renders in graphite and the
+   frontier flow in the PwC spectrum, so switching between them is legible
+   from across a room, before anyone reads a word. */
+const LANE_RAMP = {
+  current: ['#3A3A3E', '#45454A', '#505057', '#5B5B63', '#66666F'],
+  future:  ['#A32020', '#C13A0F', '#D04A02', '#E07600', '#EB8C00']
+};
 
-function laneColor(i, total){
-  if (total < 2) return LANE_RAMP[0];
-  return LANE_RAMP[Math.round(i / (total - 1) * (LANE_RAMP.length - 1))];
+function laneColor(i, total, view){
+  const ramp = LANE_RAMP[view] || LANE_RAMP.current;
+  if (total < 2) return ramp[0];
+  return ramp[Math.round(i / (total - 1) * (ramp.length - 1))];
 }
 
 /* ---- badge wording per node kind -------------------------------- */

@@ -1,0 +1,216 @@
+/* ------------------------------------------------------------------
+   Roles and best practice.
+
+   Kept apart from data.js (narrative) and layout.js (geometry) so the
+   three can be edited without touching each other.
+
+   ROLES    : the directory — who these people are and what they own.
+   PRACTICE : per step, who is typically involved and what good looks like.
+   ------------------------------------------------------------------ */
+
+const ROLES = {
+  'CISO':                    'Owns the security programme and its risk appetite. Signs off on how much autonomy an AI system is granted and answers for it.',
+  'Security Architect':      'Sets the target design and the security requirements a system must meet before it is built.',
+  'Security Data Engineer':  'Builds and runs the normalized data layer everything else retrieves from. The most under-hired role in most AI-enabled programmes.',
+  'Detection Engineer':      'Writes, tests and tunes detection content. Owns coverage against adversary techniques.',
+  'SOC Analyst (Tier 1)':    'First look at alerts. Decides escalate or close. The role most directly changed by AI triage.',
+  'SOC Analyst (Tier 2)':    'Takes escalations, runs the investigation, decides what actually happened.',
+  'Threat Hunter':           'Looks for what detections missed. Converts findings into permanent detection content.',
+  'Incident Responder':      'Runs containment and recovery once something is confirmed. Owns the incident record.',
+  'Incident Manager':        'Coordinates the response, holds the decision log, decides when to invoke wider processes.',
+  'SOC Manager':             'Owns throughput, quality and staffing. Owns the thresholds that govern AI autonomy day to day.',
+  'Vulnerability Analyst':   'Runs assessment, normalizes findings and drives remediation through owning teams.',
+  'VM Manager':              'Owns the exposure position and the SLA model. Answers for residual risk.',
+  'Threat Intel Analyst':    'Supplies exploitation and adversary context that turns severity into risk.',
+  'Asset / CMDB Owner':      'Accountable for inventory completeness and ownership accuracy — the binding constraint on everything downstream.',
+  'Cloud Security Engineer': 'Covers cloud posture, container and workload security, usually in tooling separate from the rest of the estate.',
+  'Infrastructure Engineer': 'Applies patches and configuration changes to the estate. Lives with the consequences of bad prioritization.',
+  'Platform Engineer':       'Owns the golden paths — pipelines, repositories, provisioning. Enforcement lives here, not in policy.',
+  'DevOps Engineer':         'Owns CI/CD. Any technical gate is implemented and maintained by this role.',
+  'AppSec Engineer':         'Embeds security into the software lifecycle: review, scanning, triage and developer guidance.',
+  'Developer':               'Writes the code and applies the fix. The customer of everything AppSec produces; loses trust fast if sent noise.',
+  'Application Owner':       'Accountable for a given application, its risk acceptance and its remediation.',
+  'Product Owner':           'Decides what gets built and when. Controls whether security work is scheduled at all.',
+  'Penetration Tester':      'Expert-led adversarial testing. Depth that automation does not reach.',
+  'Red Team':                'Sustained adversary emulation, increasingly including attacks against AI components themselves.',
+  'AI / ML Engineer':        'Builds and evaluates the models and agents. Owns prompt, grounding, evaluation and drift.',
+  'Automation Engineer':     'Builds the orchestration that executes approved actions deterministically, with rollback.',
+  'Change Manager':          'Owns the change process any automated action must satisfy. Engage early or retrofit painfully.',
+  'Risk & Compliance':       'Translates control performance into risk language and evidences it to auditors and regulators.',
+  'Service Owner':           'Accountable for a running service, its availability and its approval decisions.',
+  'Engineering Manager':     'Owns the delivery team taking remediation work. Controls whether it gets prioritized.'
+};
+
+/* Which roles a domain typically involves, in the order they appear. */
+const DOMAIN_ROLES = {
+  soc:    ['SOC Analyst (Tier 1)','SOC Analyst (Tier 2)','Detection Engineer','Threat Hunter',
+           'Incident Responder','Incident Manager','SOC Manager','Security Data Engineer',
+           'AI / ML Engineer','Automation Engineer','Change Manager','Risk & Compliance','CISO'],
+  vm:     ['Vulnerability Analyst','VM Manager','Asset / CMDB Owner','Cloud Security Engineer',
+           'Infrastructure Engineer','Threat Intel Analyst','Security Data Engineer','AI / ML Engineer',
+           'Automation Engineer','Change Manager','Service Owner','Risk & Compliance','CISO'],
+  appsec: ['AppSec Engineer','Developer','Application Owner','Product Owner','Security Architect',
+           'Platform Engineer','DevOps Engineer','Penetration Tester','Red Team','AI / ML Engineer',
+           'Engineering Manager','Risk & Compliance','CISO']
+};
+
+const PRACTICE = {
+
+/* ================================ SOC ================================ */
+soc: {
+  current: {
+    1:  { roles:['Security Data Engineer','Platform Engineer'],
+          best:'Track log source coverage against a control framework rather than against licence spend. Publish an owner and a retention decision for every source.' },
+    2:  { roles:['Detection Engineer'],
+          best:'Move detection logic out of the vendor console and into version control before anything else. Content you cannot diff, test or review is content no model can safely help you write.' },
+    3:  { roles:['SOC Analyst (Tier 1)','SOC Manager'],
+          best:'Measure the queue in unique incidents, not raw alerts. Counting alerts rewards noise.' },
+    4:  { roles:['SOC Analyst (Tier 1)'],
+          best:'Require a structured disposition with a reason code on every closure. Those labels are the evaluation set for any future triage model — most teams discover too late that they never captured them.' },
+    5:  { roles:['SOC Analyst (Tier 1)'],
+          best:'Make API access a procurement requirement for new tooling. Every console without one is a hard ceiling on how much context can ever be assembled automatically.' },
+    6:  { roles:['SOC Analyst (Tier 2)','Incident Responder'],
+          best:'Treat escalation rate as a tuning signal rather than a workload statistic, and carry a complete case file across the handoff.' },
+    7:  { roles:['Threat Hunter','SOC Analyst (Tier 2)'],
+          best:'Keep a reviewed, versioned query library. It is both a productivity asset and the grounding context a copilot needs later.' },
+    8:  { roles:['Incident Responder','Service Owner'],
+          best:'Version-control runbooks with review dates and named owners. Automating a stale runbook only makes the wrong action faster.' },
+    9:  { roles:['Incident Manager','Change Manager'],
+          best:'Define action classes with pre-agreed approvers and time bounds now. This is the control that later makes agentic response acceptable.' },
+    10: { roles:['Incident Responder'],
+          best:'Enforce a consistent case schema at closure. The case history is the corpus everything downstream retrieves from.' },
+    11: { roles:['SOC Manager','CISO'],
+          best:'Capture baselines for precision and false-positive rate before deploying any AI. Without a before, you cannot evidence an after.' }
+  },
+  future: {
+    1:  { roles:['Security Data Engineer','Security Architect'],
+          best:'Normalize into an open event schema and join asset and identity context at ingest. Sequence this first — retrieval quality caps every capability above it.' },
+    2:  { roles:['Detection Engineer'],
+          best:'Peer review, automated tests and technique mapping on every detection. Retire console-side editing as a permitted path or the library rots.' },
+    3:  { roles:['Detection Engineer','AI / ML Engineer'],
+          best:'Let the model draft and back-test against historical telemetry, but keep a human engineer as approver. Measure reviewed content shipped per engineer, not detections generated.' },
+    4:  { roles:['SOC Analyst (Tier 1)','AI / ML Engineer'],
+          best:'Start here. Enrichment and clustering are retrieval and pattern work that take no action, so they deliver most of the time saving at the lowest risk.' },
+    5:  { roles:['SOC Manager','Risk & Compliance'],
+          best:'Run in shadow mode first and compare agreement with human decisions. Introduce auto-close one alert category at a time, and re-open a fixed sample every cycle.' },
+    6:  { roles:['SOC Analyst (Tier 1)','SOC Analyst (Tier 2)'],
+          best:'Always show the generated query. An analyst who can inspect the logic can catch a wrong answer; one shown only a conclusion cannot.' },
+    7:  { roles:['SOC Analyst (Tier 2)','Incident Responder'],
+          best:'Keep the investigation agent strictly read-only, and review the evidence chain rather than the conclusion. Investigation and action stay separate systems.' },
+    8:  { roles:['Incident Manager','Change Manager','Risk & Compliance'],
+          best:'Classify actions into automatic, approval-required and human-only before granting any autonomy. Test rollback for every automated class.' },
+    9:  { roles:['Incident Responder','Automation Engineer'],
+          best:'The model selects and parameterizes the playbook; orchestration executes it deterministically. Never let the model improvise the action itself.' },
+    10: { roles:['Incident Responder'],
+          best:'Draft automatically, but require human confirmation. Track edit distance between draft and final as a quiet quality signal.' },
+    11: { roles:['SOC Manager','CISO','Risk & Compliance'],
+          best:'Report precision, autonomy rate and human override on a standing cadence. This is the artefact that lets you defend expanding autonomy — and the one most programmes skip.' }
+  }
+},
+
+/* ============================ VULN MGMT ============================= */
+vm: {
+  current: {
+    1:  { roles:['Asset / CMDB Owner','Infrastructure Engineer'],
+          best:'Measure inventory coverage against independent sources, never against self-reporting. Anything undiscovered is excluded from every step that follows.' },
+    2:  { roles:['Vulnerability Analyst'],
+          best:'Track authenticated scan coverage as a first-class metric. Unauthenticated results flatter the exposure picture.' },
+    3:  { roles:['Cloud Security Engineer','Vulnerability Analyst'],
+          best:'Agree one finding identity across scanners early. Three tools with three severity models produce three contradictory truths.' },
+    4:  { roles:['Vulnerability Analyst'],
+          best:'Treat the manual merge as a pipeline to be built, not a task to be staffed. It is pure toil with a deterministic definition of correct.' },
+    5:  { roles:['Vulnerability Analyst','VM Manager'],
+          best:'Add known-exploited and exploit-prediction signals before adding anything else. Severity alone ranks an isolated test host above an internet-facing revenue system.' },
+    6:  { roles:['Vulnerability Analyst','Service Owner'],
+          best:'Measure first-time routing accuracy. Tickets that bounce are an ownership data problem wearing a process costume.' },
+    7:  { roles:['Infrastructure Engineer','Application Owner'],
+          best:'Record a verifiable action for every closed finding, and track compensating controls as controls rather than as closures.' },
+    8:  { roles:['Risk & Compliance','Service Owner'],
+          best:'Review exceptions as a portfolio with trend and root cause. The backlog, not the open-findings count, is the honest risk picture.' },
+    9:  { roles:['VM Manager','Risk & Compliance'],
+          best:'Start reporting residual exposure alongside SLA attainment now, so the metric survives the shift to risk-based prioritization.' }
+  },
+  future: {
+    1:  { roles:['Security Data Engineer','Asset / CMDB Owner'],
+          best:'Reconcile CMDB, cloud APIs, agents and repositories continuously, and flag disagreement for a human rather than silently picking a winner.' },
+    2:  { roles:['Vulnerability Analyst','Security Data Engineer'],
+          best:'Version-control and test the reconciliation logic. Once it is code, the manual merge step disappears rather than moving.' },
+    3:  { roles:['Vulnerability Analyst','Threat Intel Analyst'],
+          best:'Drive cadence from asset criticality and rate of change, not the calendar. Freshness is an engineering outcome, not a model capability.' },
+    4:  { roles:['Vulnerability Analyst','AI / ML Engineer'],
+          best:'Insist on an explanation with every ranking. An unexplained risk score will not survive its first argument with an application owner.' },
+    5:  { roles:['VM Manager','Risk & Compliance'],
+          best:'Send owners five things that matter rather than four hundred sorted by severity, and keep the ranking rules human-owned and auditable.' },
+    6:  { roles:['AI / ML Engineer','Infrastructure Engineer'],
+          best:'Propose only. Keeping proposal separate from execution is what makes this safe to introduce and easy to withdraw.' },
+    7:  { roles:['Change Manager','Service Owner'],
+          best:'Bring change management into the design of this gate early. Retrofitting their approval afterwards is far harder than including them.' },
+    8:  { roles:['Automation Engineer','Change Manager'],
+          best:'Start with a narrow, boring class of changes. Success is not how much is automated — it is that nothing automated has caused an incident.' },
+    9:  { roles:['VM Manager','CISO'],
+          best:'Move the headline metric to residual exposure before the new prioritization goes live, or better decisions will read as worse numbers.' }
+  }
+},
+
+/* ============================== APPSEC ============================== */
+appsec: {
+  current: {
+    1:  { roles:['Product Owner','Developer'],
+          best:'Trigger the security record from application creation itself. Voluntary intake is why inventories are incomplete, and a policy reminder will not fix it.' },
+    2:  { roles:['Security Architect'],
+          best:'Express review output as checkable conditions rather than prose. Requirements that cannot be verified mechanically cannot be monitored by anything.' },
+    3:  { roles:['Security Architect','AppSec Engineer'],
+          best:'Represent requirements as policy-as-code and verify continuously, rather than attesting at a point in time.' },
+    4:  { roles:['AppSec Engineer','Platform Engineer'],
+          best:'This is the structural gap. Any capability inserted into the pipeline only covers applications that actually use the pipeline — coverage, not model quality, is the limit.' },
+    5:  { roles:['Developer','DevOps Engineer'],
+          best:'Give security stages real pass and fail semantics. A stage that cannot block is advisory, and advisory controls decay.' },
+    6:  { roles:['AppSec Engineer'],
+          best:'Tie assessment cadence to risk as well as commit frequency. Build-driven scanning assesses a slow-moving internet-facing app rarely — exactly backwards.' },
+    7:  { roles:['AppSec Engineer'],
+          best:'Trigger dynamic testing from deployment events and track authenticated and API coverage explicitly.' },
+    8:  { roles:['Penetration Tester'],
+          best:'Ingest findings structurally instead of re-keying reports. Expert testing is the last thing to automate away and the first thing to stop transcribing.' },
+    9:  { roles:['AppSec Engineer'],
+          best:'Add exploitability and business context to triage. Credibility with engineering teams is the real currency, and it is spent by sending noise.' },
+    10: { roles:['AppSec Engineer','Risk & Compliance'],
+          best:'Give AI-assisted findings a provenance-carrying path into the system of record. Work that cannot be evidenced cannot become a control.' },
+    11: { roles:['Developer','Application Owner'],
+          best:'Aim for consistency across teams before speed. Every exception needs an expiry, an owner and a compensating control.' },
+    12: { roles:['AppSec Engineer','AI / ML Engineer'],
+          best:'A parallel experiment is the right way to start and the wrong place to stay. Define the promotion path to a production control early.' }
+  },
+  future: {
+    1:  { roles:['Product Owner','Platform Engineer'],
+          best:'Make inventory a system outcome, not a process people have to remember. Applications without a record then become an exception you can detect.' },
+    2:  { roles:['Security Architect'],
+          best:'Let AI prepare context and draft requirements, but keep the architect as reviewer of record. Throughput rises without lowering the bar.' },
+    3:  { roles:['Platform Engineer','DevOps Engineer'],
+          best:'Cover agent and AI-component development under the same governance as application code. Teams are already shipping both.' },
+    4:  { roles:['AppSec Engineer','Developer'],
+          best:'Run the gate in warn-only mode, measure precision, and switch to blocking only once the numbers justify it. A noisy gate is disabled within a month.' },
+    5:  { roles:['AppSec Engineer'],
+          best:'Correlate static results with dynamic and AI findings instead of triaging each source separately.' },
+    6:  { roles:['AppSec Engineer','DevOps Engineer'],
+          best:'Trigger from deployment events and track authenticated and API surface coverage as a metric in its own right.' },
+    7:  { roles:['AppSec Engineer','AI / ML Engineer'],
+          best:'Record a justification for every suppression. Silent suppression is how you lose the auditors, however good the reachability analysis is.' },
+    8:  { roles:['Red Team','AI / ML Engineer'],
+          best:'Extend testing to prompt injection, agent tool abuse and model misuse. This is the capability most likely to be missing from an AppSec programme entirely.' },
+    9:  { roles:['AppSec Engineer','Risk & Compliance'],
+          best:'Build exposure analysis once and serve both AppSec and vulnerability management from it. The reasoning is the same problem.' },
+    10: { roles:['AI / ML Engineer','AppSec Engineer'],
+          best:'Use a separate model, prompted and grounded differently, to check AI output before promotion. This is what makes AI findings defensible in a system of record.' },
+    11: { roles:['Developer','AppSec Engineer'],
+          best:'Propose a specific change for this asset in this environment, then require human validation. Generic advisory links are why remediation stalls.' },
+    12: { roles:['AppSec Engineer','Engineering Manager'],
+          best:'Feed owner disagreement back into ranking. Programmes that skip the loop end up technically correct and widely ignored.' },
+    13: { roles:['CISO','Risk & Compliance'],
+          best:'Track performance per team against agreed thresholds as a standing report, not a one-off analysis.' }
+  }
+}
+};
+
+function practiceFor(domainKey, view, n){
+  return (PRACTICE[domainKey] && PRACTICE[domainKey][view] && PRACTICE[domainKey][view][n]) || null;
+}

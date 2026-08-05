@@ -18,7 +18,7 @@ soc: {
   tagline: 'Detection, triage and response across the enterprise estate.',
 
   current: {
-    label: 'Current State',
+    label: 'The traditional way',
     phases: ['Detection', 'Triage', 'Investigation', 'Response', 'Reporting'],
     nodes: [
       { n:1, p:0, k:'process', t:'Telemetry lands in the SIEM',
@@ -240,7 +240,7 @@ soc: {
   },
 
   future: {
-    label: 'Future State',
+    label: 'With frontier models',
     phases: ['Unified Data', 'AI Detection', 'Agentic Triage', 'Governed Response', 'Assurance'],
     foundation: 'Centralized, normalized security data foundation — telemetry, asset and identity context, case history, control library',
     nodes: [
@@ -565,7 +565,7 @@ vm: {
   tagline: 'Finding, prioritizing and closing exposure across the estate.',
 
   current: {
-    label: 'Current State',
+    label: 'The traditional way',
     phases: ['Discovery', 'Assessment', 'Prioritization', 'Remediation', 'Reporting'],
     nodes: [
       { n:1, p:0, k:'process', t:'Asset discovery via CMDB and sweeps',
@@ -752,7 +752,7 @@ vm: {
   },
 
   future: {
-    label: 'Future State',
+    label: 'With frontier models',
     phases: ['Asset Intelligence', 'Unified Exposure', 'AI Prioritization', 'AI Remediation', 'Assurance'],
     foundation: 'Centralized, normalized data foundation — asset graph, exposure data, threat intelligence, business and risk context',
     nodes: [
@@ -1030,7 +1030,7 @@ appsec: {
   tagline: 'Securing applications, code and agents from design through production.',
 
   current: {
-    label: 'Current State',
+    label: 'The traditional way',
     phases: ['Initiation', 'Onboarding and Architecture', 'Build and Scan', 'Dynamic and Manual Testing', 'Reporting and Risk'],
     nodes: [
       { n:1, p:0, k:'process', t:'Team needs an application',
@@ -1271,7 +1271,7 @@ appsec: {
   },
 
   future: {
-    label: 'Future State',
+    label: 'With frontier models',
     phases: ['Inventory and Governance', 'Secure Development (Gated)', 'Continuous Detection', 'Remediation and Reporting'],
     foundation: 'Centralized, normalized data foundation — application and API inventory, security tooling, business context, risk context, control library',
     nodes: [

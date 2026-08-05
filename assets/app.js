@@ -143,7 +143,7 @@ function renderFlow(){
   const heads = f.phases.map((p, i) => `
     <button class="lane-head" data-lane="${i}" title="Open the first step in ${esc(p)}"
          style="left:${g.x(i)}px;top:8px;width:${g.laneW}px;height:${GEO.headH - 12}px;
-         background:${laneColor(i, f.phases.length)}">${esc(p)}</button>`).join('');
+         background:${laneColor(i, f.phases.length, state.view)}">${esc(p)}</button>`).join('');
 
   const groups = (lay.groups || []).map(gr => {
     const bs = gr.nodes.map(n => boxes[n]).filter(Boolean);
@@ -223,6 +223,8 @@ function nodeHTML(n, b, delay){
     </button>`;
   }
 
+  const p = practiceFor(state.domain, state.view, n.n);
+
   return `<button class="vnode ${cls}${act}" data-node="${n.n}" style="${pos}">
     <span class="vtop">
       <span class="vicon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"
@@ -231,6 +233,7 @@ function nodeHTML(n, b, delay){
     </span>
     <span class="vtitle">${esc(n.t)}</span>
     <span class="vsub">${esc(n.s)}</span>
+    ${p && p.roles ? `<span class="vroles">${p.roles.map(r => `<span class="vrole">${esc(r)}</span>`).join('')}</span>` : ''}
   </button>`;
 }
 
@@ -258,47 +261,6 @@ window.addEventListener('resize', fitCanvas);
 function setZoom(delta){
   state.zoom = Math.max(0.6, Math.min(2.2, +(state.zoom + delta).toFixed(2)));
   fitCanvas();
-}
-
-/* ================================================================
-   HOVER PREVIEW
-   ================================================================ */
-let popTimer = null;
-
-function showPop(num, el){
-  const n = nodeBy(num);
-  if (!n) return;
-  const pop = $('#pop');
-  const firstKey = Object.keys(n.d)[0];
-
-  pop.innerHTML = `
-    <div class="pop-top ${'k-' + n.k}">
-      ${n.isNew ? `<span class="vbadge is-new"><i></i>New</span>` : ''}
-      <span class="vbadge"><i></i>${esc(KIND_BADGE[n.k])}</span>
-      ${n.badge ? `<span class="vbadge" style="color:var(--ink-4)">${esc(n.badge)}</span>` : ''}
-    </div>
-    <h4>${n.n}. ${esc(n.t)}</h4>
-    <p class="pop-sum">${esc(n.s)}</p>
-    <div class="pop-head">${esc(firstKey)}</div>
-    <ul>${n.d[firstKey].slice(0, 3).map(b => `<li>${esc(b)}</li>`).join('')}</ul>
-    <div class="pop-cta">Click for the full deep dive &rarr;</div>`;
-
-  pop.classList.add('open');
-
-  const r = el.getBoundingClientRect();
-  const pw = pop.offsetWidth, ph = pop.offsetHeight, gap = 12;
-  let x = r.right + gap;
-  if (x + pw > window.innerWidth - 12) x = r.left - pw - gap;
-  if (x < 12) x = Math.max(12, (window.innerWidth - pw) / 2);
-  let y = Math.max(12, Math.min(r.top + r.height / 2 - ph / 2, window.innerHeight - ph - 12));
-
-  pop.style.left = x + 'px';
-  pop.style.top  = y + 'px';
-}
-
-function hidePop(){
-  clearTimeout(popTimer);
-  $('#pop')?.classList.remove('open');
 }
 
 /* ================================================================
@@ -366,6 +328,7 @@ function renderSide(){
   const n = nodeBy(state.node);
   if (!n){ state.node = null; return renderSide(); }
 
+  const prac = practiceFor(state.domain, state.view, n.n);
   const badges = [];
   if (n.isNew) badges.push(`<span class="vbadge is-new"><i></i>New</span>`);
   badges.push(`<span class="vbadge"><i></i>${esc(KIND_BADGE[n.k])}</span>`);
@@ -377,6 +340,15 @@ function renderSide(){
     <h2>${esc(n.t)}</h2>
     <div class="sd-badges ${'k-' + n.k}">${badges.join('')}</div>
     <p class="sd-sum">${esc(n.s)}</p>
+    ${prac && prac.best ? `<div class="callout">
+      <div class="callout-h">Best practice</div>
+      <p>${esc(prac.best)}</p>
+    </div>` : ''}
+    ${prac && prac.roles ? `<div class="dd-section">
+      <h4>Typically involved</h4>
+      <div class="role-chips">${prac.roles.map(r =>
+        `<button class="role-chip" data-role="${esc(r)}" title="${esc(ROLES[r] || '')}">${esc(r)}</button>`).join('')}</div>
+    </div>` : ''}
     ${Object.entries(n.d).map(([h, items]) => `
       <div class="dd-section">
         <h4>${esc(h)}</h4>
@@ -401,7 +373,6 @@ function renderSide(){
 }
 
 function selectNode(num){
-  hidePop();
   state.node = num;
   $$('.vnode').forEach(el => el.classList.toggle('is-active', +el.dataset.node === num));
   document.body.classList.remove('side-collapsed');
@@ -452,6 +423,87 @@ function recMatrix(recs){
       ${recs.map(r => `<div class="rm-cell">${row.cell(r)}</div>`).join('')}
     `).join('')}
   </div>`;
+}
+
+/* ---- best practice modal ---- */
+function openPractice(){
+  const d = domain(), f = flow();
+  const rows = f.nodes
+    .map(n => ({ n, p: practiceFor(state.domain, state.view, n.n) }))
+    .filter(x => x.p && x.p.best);
+
+  $('#modal-head').innerHTML = `
+    <div>
+      <h2>${esc(d.name)} &mdash; best practice</h2>
+      <p>What good looks like at each step of ${esc(f.label.toLowerCase())}, and who is typically involved.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="copy-bp">Copy as markdown</button>
+      <button class="btn btn-primary" id="modal-close">Close</button>
+    </div>`;
+
+  $('#modal-body').innerHTML = `<div class="bp-list">${rows.map(({ n, p }) => `
+    <div class="bp">
+      <div class="bp-step">
+        <span class="vbadge ${'k-' + n.k}"><i></i>${esc(KIND_BADGE[n.k])}</span>
+        <button class="bp-title" data-node="${n.n}">${esc(n.t)}</button>
+        <span class="bp-phase">${esc(f.phases[n.p] || '')}</span>
+      </div>
+      <p class="bp-best">${esc(p.best)}</p>
+      <div class="role-chips">${(p.roles || []).map(r =>
+        `<button class="role-chip" data-role="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+    </div>`).join('')}</div>`;
+
+  $('#modal-close').onclick = closeModal;
+  $('#copy-bp').onclick = e => copy(practiceMarkdown(d, f, rows), e.target);
+  $('#modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+/* ---- roles modal ---- */
+function openRoles(){
+  const d = domain();
+  const list = DOMAIN_ROLES[state.domain] || Object.keys(ROLES);
+
+  /* which steps each role shows up in, across both views */
+  const touches = r => ['current', 'future'].flatMap(v =>
+    (d[v].nodes || []).filter(n => {
+      const p = practiceFor(state.domain, v, n.n);
+      return p && p.roles && p.roles.includes(r);
+    }).map(n => ({ v, n })));
+
+  $('#modal-head').innerHTML = `
+    <div>
+      <h2>${esc(d.name)} &mdash; who does what</h2>
+      <p>The roles typically involved, and where each one shows up in the flow.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="modal-close">Close</button>
+    </div>`;
+
+  $('#modal-body').innerHTML = `<div class="role-grid">${list.map(r => {
+    const t = touches(r);
+    return `<div class="role-card" id="role-${esc(r.replace(/\W+/g, '-'))}">
+      <h4>${esc(r)}</h4>
+      <p>${esc(ROLES[r] || '')}</p>
+      ${t.length ? `<div class="role-steps">${t.map(({ v, n }) =>
+        `<button class="obs-ref${v === 'future' ? ' is-future' : ''}" data-goto="${v}:${n.n}"
+           title="${v === 'future' ? 'With frontier models' : 'The traditional way'}">${esc(n.t)}</button>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('')}</div>`;
+
+  $('#modal-close').onclick = closeModal;
+  $('#modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function practiceMarkdown(d, f, rows){
+  let md = `# ${d.name} — best practice (${f.label})\n\n`;
+  rows.forEach(({ n, p }) => {
+    md += `## ${n.t}\n\n_${f.phases[n.p]} — ${KIND_BADGE[n.k]}_\n\n${p.best}\n\n`;
+    if (p.roles) md += `**Typically involved:** ${p.roles.join(', ')}\n\n`;
+  });
+  return md;
 }
 
 function openModal(){
@@ -599,8 +651,20 @@ document.addEventListener('click', e => {
     return;
   }
 
+  /* a role chip opens the roles directory at that role */
+  const role = e.target.closest('[data-role]');
+  if (role){
+    openRoles();
+    const id = 'role-' + role.dataset.role.replace(/\W+/g, '-');
+    requestAnimationFrame(() => {
+      const card = document.getElementById(id);
+      if (card){ card.scrollIntoView({ block:'center' }); card.classList.add('is-hit'); }
+    });
+    return;
+  }
+
   const node = e.target.closest('[data-node]');
-  if (node){ selectNode(+node.dataset.node); return; }
+  if (node){ closeModal(); selectNode(+node.dataset.node); return; }
 
   const focus = e.target.closest('[data-focus]');
   if (focus){ selectNode(focus.dataset.focus); return; }
@@ -618,24 +682,11 @@ document.addEventListener('click', e => {
     $('#legend-pop').classList.remove('open');
 });
 
-document.addEventListener('mouseover', e => {
-  const el = e.target.closest('.vnode');
-  if (!el) return;
-  clearTimeout(popTimer);
-  popTimer = setTimeout(() => showPop(+el.dataset.node, el), 180);
-});
 
-document.addEventListener('mouseout', e => {
-  const el = e.target.closest('.vnode');
-  if (!el) return;
-  if (e.relatedTarget?.closest?.('.vnode') === el) return;
-  hidePop();
-});
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
     if ($('#modal').classList.contains('open')) return closeModal();
-    hidePop();
     $('#legend-pop').classList.remove('open');
     if (state.node !== null) selectNode(null);
     return;
@@ -654,7 +705,9 @@ window.addEventListener('DOMContentLoaded', () => {
   $('#zoom-out').onclick = () => setZoom(-0.15);
   $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
 
-  $('#dd-top').onclick = openModal;
+  $('#dd-top').onclick    = openModal;
+  $('#bp-top').onclick    = openPractice;
+  $('#roles-top').onclick = openRoles;
   $('#side-toggle').onclick = () => {
     document.body.classList.remove('side-open');
     document.body.classList.toggle('side-collapsed');
