@@ -17,6 +17,15 @@ soc: {
   short: 'SOC',
   tagline: 'Detection, triage and response across the enterprise estate.',
 
+  hero: {
+    lead: 'Most of the SOC day is ',
+    em:   'retrieval, not judgement',
+    tail: '.',
+    sub:  'Assembling context, deduplicating alerts and writing up what happened are pattern work. Models absorb them. The decisions that carry consequences stay with people.',
+    oldSteps: [5, 4, 8, 11],
+    newSteps: [4, 7, 8, 11]
+  },
+
   current: {
     label: 'The traditional way',
     phases: ['Detection', 'Triage', 'Investigation', 'Response', 'Reporting'],
@@ -564,6 +573,15 @@ vm: {
   short: 'Vuln Mgmt',
   tagline: 'Finding, prioritizing and closing exposure across the estate.',
 
+  hero: {
+    lead: 'Severity is not risk, and ',
+    em:   'the queue knows it',
+    tail: '.',
+    sub:  'Ranking by vendor score alone puts an isolated test host above an internet-facing revenue system. Models reason across reachability, blast radius and business context — but only once the asset picture is honest.',
+    oldSteps: [1, 5, 7, 8],
+    newSteps: [1, 4, 6, 9]
+  },
+
   current: {
     label: 'The traditional way',
     phases: ['Discovery', 'Assessment', 'Prioritization', 'Remediation', 'Reporting'],
@@ -1028,6 +1046,15 @@ appsec: {
   name: 'Application Security',
   short: 'AppSec',
   tagline: 'Securing applications, code and agents from design through production.',
+
+  hero: {
+    lead: 'A gate nobody has to use ',
+    em:   'is not a gate',
+    tail: '.',
+    sub:  'Scanning that runs only when code changes, on only the applications that opted in, is not coverage. Models make review continuous — and then have to survive contact with developers who will disable anything noisy.',
+    oldSteps: [4, 6, 9, 10],
+    newSteps: [4, 7, 8, 11]
+  },
 
   current: {
     label: 'The traditional way',

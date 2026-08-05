@@ -31,6 +31,93 @@ function renderTabs(){
 }
 
 /* ================================================================
+   HERO — the split reveal that carries the argument
+   ================================================================ */
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function renderHero(){
+  const d = domain(), h = d.hero;
+  if (!h){ $('#hero').innerHTML = ''; return; }
+
+  const pick = (view, nums) => nums
+    .map(n => d[view].nodes.find(x => x.n === n))
+    .filter(Boolean);
+
+  const olds = pick('current', h.oldSteps);
+  const news = pick('future',  h.newSteps);
+
+  const fut     = d.future.nodes;
+  const changed = fut.filter(n => n.isNew).length;
+  const aiSteps = fut.filter(n => n.k === 'ai').length;
+  const gates   = fut.filter(n => n.k === 'decision').length;
+
+  const item = (n, side) => `
+    <button class="h-item" data-goto="${side === 'new' ? 'future' : 'current'}:${n.n}">
+      <span class="h-dot"></span>
+      <span>
+        <span class="h-item-t">${esc(n.t)}</span>
+        <span class="h-item-p">${esc(n.s)}</span>
+      </span>
+    </button>`;
+
+  $('#hero').innerHTML = `
+    <div class="hero-card">
+      <div class="hero-head">
+        <div class="hero-eyebrow">${esc(d.name)}</div>
+        <h2>${esc(h.lead)}<em>${esc(h.em)}</em>${esc(h.tail)}</h2>
+        <p>${esc(h.sub)}</p>
+      </div>
+
+      <div class="hero-split">
+        <div class="h-side h-old">
+          <div class="h-label">The traditional way<i></i></div>
+          ${olds.map(n => item(n, 'old')).join('')}
+        </div>
+        <div class="h-side h-new">
+          <div class="h-label">With frontier models<i></i></div>
+          ${news.map(n => item(n, 'new')).join('')}
+        </div>
+        <div class="h-divider"></div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="h-stat"><div class="n" data-count="${changed}">0</div>
+          <div class="l">steps new or changed, of ${fut.length}</div></div>
+        <div class="h-stat"><div class="n" data-count="${aiSteps}">0</div>
+          <div class="l">with a model in the loop</div></div>
+        <div class="h-stat"><div class="n" data-count="${gates}">0</div>
+          <div class="l">human gates kept, not removed</div></div>
+        <button class="h-cta" id="hero-cta">
+          See where it changes
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>`;
+
+  $('#hero-cta').onclick = () => {
+    if (state.view !== 'future') setView('future');
+    $('#canvas-wrap').scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block:'start' });
+  };
+
+  countUp();
+}
+
+/* stat numbers tick up once, on first paint */
+function countUp(){
+  $$('#hero .n').forEach(el => {
+    const target = +el.dataset.count || 0;
+    if (reduceMotion()){ el.textContent = target; return; }
+    const started = performance.now(), dur = 750;
+    const tick = now => {
+      const t = Math.min(1, (now - started) / dur);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ================================================================
    GEOMETRY
    ================================================================ */
 function laneGeom(count){
@@ -155,12 +242,15 @@ function renderFlow(){
 
   const obstacles = Object.values(boxes);
   let paths = '', chips = '';
-  lay.edges.forEach(([a, b, opt]) => {
+  lay.edges.forEach(([a, b, opt], i) => {
     const A = boxes[a], B = boxes[b];
     if (!A || !B) return;
     const o = typeof opt === 'string' ? { dash: opt === 'dashed' } : (opt || {});
     const p = edgePath(A, B, o.route);
-    paths += `<path d="${p.d}" class="edge${o.dash ? ' edge-dashed' : ''}" marker-end="url(#arw${o.dash ? 'd' : ''})"/>`;
+    /* solid connectors draw themselves in; dashed ones just fade, since
+       animating dashoffset would fight their dash pattern */
+    paths += `<path d="${p.d}" class="edge${o.dash ? ' edge-dashed' : ' edge-draw'}"
+                style="animation-delay:${140 + i * 55}ms" marker-end="url(#arw${o.dash ? 'd' : ''})"/>`;
     if (o.label){
       const asPill = o.dash && !o.chip;
       const lw = o.label.length * (asPill ? 6.6 : 6.2) + (asPill ? 26 : 14);
@@ -618,6 +708,7 @@ function render(){
   document.body.dataset.state = state.view;
   $('#switch').setAttribute('aria-checked', state.view === 'future');
   renderTabs();
+  renderHero();
   renderFlow();
   renderSide();
   syncHash();
