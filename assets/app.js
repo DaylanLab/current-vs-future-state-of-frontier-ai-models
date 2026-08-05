@@ -313,8 +313,6 @@ function nodeHTML(n, b, delay){
     </button>`;
   }
 
-  const p = practiceFor(state.domain, state.view, n.n);
-
   return `<button class="vnode ${cls}${act}" data-node="${n.n}" style="${pos}">
     <span class="vtop">
       <span class="vicon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"
@@ -323,7 +321,6 @@ function nodeHTML(n, b, delay){
     </span>
     <span class="vtitle">${esc(n.t)}</span>
     <span class="vsub">${esc(n.s)}</span>
-    ${p && p.roles ? `<span class="vroles">${p.roles.map(r => `<span class="vrole">${esc(r)}</span>`).join('')}</span>` : ''}
   </button>`;
 }
 
@@ -351,6 +348,55 @@ window.addEventListener('resize', fitCanvas);
 function setZoom(delta){
   state.zoom = Math.max(0.6, Math.min(2.2, +(state.zoom + delta).toFixed(2)));
   fitCanvas();
+}
+
+/* ================================================================
+   STEP POPUP — a self-contained box, not the card stretching
+   ================================================================ */
+let popTimer = null;
+
+function showPop(num, el){
+  const n = nodeBy(num);
+  if (!n) return;
+  const p   = practiceFor(state.domain, state.view, num) || {};
+  const pop = $('#pop');
+
+  const section = (title, items, cls) => items && items.length ? `
+    <div class="pop-sec ${cls}">
+      <div class="pop-sec-h">${esc(title)}</div>
+      <div class="pop-chips">${items.map(i => `<span class="pop-chip">${esc(i)}</span>`).join('')}</div>
+    </div>` : '';
+
+  pop.innerHTML = `
+    <div class="pop-top ${'k-' + n.k}">
+      <span class="vbadge${n.isNew ? ' is-new' : ''}"><i></i>${esc(n.isNew ? 'New' : KIND_BADGE[n.k])}</span>
+      ${n.badge ? `<span class="pop-cadence">${esc(n.badge)}</span>` : ''}
+    </div>
+    <h4>${esc(n.t)}</h4>
+    <p class="pop-sum">${esc(n.s)}</p>
+    ${section('Who does this', p.roles, 'is-role')}
+    ${section('Tools to use', p.tools, 'is-tool')}
+    ${section('Metrics to watch', p.metrics, 'is-metric')}
+    <div class="pop-cta">Click for the full deep dive &rarr;</div>`;
+
+  pop.className = 'pop open ' + ('k-' + n.k);
+
+  /* place beside the step, flipping and clamping to stay on screen */
+  const r  = el.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight, gap = 14;
+  let x = r.right + gap;
+  if (x + pw > window.innerWidth - 12) x = r.left - pw - gap;
+  if (x < 12) x = Math.max(12, Math.min(r.left, window.innerWidth - pw - 12));
+  let y = Math.max(12, Math.min(r.top + r.height / 2 - ph / 2, window.innerHeight - ph - 12));
+
+  pop.style.left = x + 'px';
+  pop.style.top  = y + 'px';
+}
+
+function hidePop(){
+  clearTimeout(popTimer);
+  const p = $('#pop');
+  if (p) p.classList.remove('open');
 }
 
 /* ================================================================
@@ -435,9 +481,19 @@ function renderSide(){
       <p>${esc(prac.best)}</p>
     </div>` : ''}
     ${prac && prac.roles ? `<div class="dd-section">
-      <h4>Typically involved</h4>
+      <h4>Who does this</h4>
       <div class="role-chips">${prac.roles.map(r =>
         `<button class="role-chip" data-role="${esc(r)}" title="${esc(ROLES[r] || '')}">${esc(r)}</button>`).join('')}</div>
+    </div>` : ''}
+    ${prac && prac.tools ? `<div class="dd-section">
+      <h4>Tools to use</h4>
+      <div class="pop-chips">${prac.tools.map(t =>
+        `<span class="pop-chip is-tool">${esc(t)}</span>`).join('')}</div>
+    </div>` : ''}
+    ${prac && prac.metrics ? `<div class="dd-section">
+      <h4>Metrics to watch</h4>
+      <div class="pop-chips">${prac.metrics.map(m =>
+        `<span class="pop-chip is-metric">${esc(m)}</span>`).join('')}</div>
     </div>` : ''}
     ${Object.entries(n.d).map(([h, items]) => `
       <div class="dd-section">
@@ -463,6 +519,7 @@ function renderSide(){
 }
 
 function selectNode(num){
+  hidePop();
   state.node = num;
   $$('.vnode').forEach(el => el.classList.toggle('is-active', +el.dataset.node === num));
   document.body.classList.remove('side-collapsed');
@@ -775,8 +832,19 @@ document.addEventListener('click', e => {
 
 
 
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('.vnode');
+  if (!el){
+    if (!e.target.closest('#pop')) hidePop();
+    return;
+  }
+  clearTimeout(popTimer);
+  popTimer = setTimeout(() => showPop(+el.dataset.node, el), 160);
+});
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){
+    hidePop();
     if ($('#modal').classList.contains('open')) return closeModal();
     $('#legend-pop').classList.remove('open');
     if (state.node !== null) selectNode(null);

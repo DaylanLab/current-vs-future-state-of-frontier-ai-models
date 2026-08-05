@@ -285,34 +285,14 @@ body[data-state="future"] .vnode.k-ai{ animation:nodeIn .26s ease-out backwards,
   animation:nodeIn .26s ease-out backwards;
 }
 
-/* Hover lifts the card out of the grid and lets it show everything it has:
-   the full summary, plus who is typically involved. Height is released so
-   the clamps stop biting. */
+/* The card keeps its shape on hover — a small lift only. Everything else
+   moves into the popup box, so nothing stretches or reflows the diagram. */
 .vnode:hover{
-  transform:scale(1.12); z-index:20;
-  height:auto !important; min-height:100%;
-  box-shadow:0 10px 34px rgba(45,45,45,.2);
+  transform:translateY(-3px); z-index:20;
+  box-shadow:0 8px 22px rgba(45,45,45,.16);
   border-color:var(--orange-line);
 }
-.vnode:hover .vsub{ -webkit-line-clamp:unset; overflow:visible; }
-.vnode:hover .vtitle{ -webkit-line-clamp:unset; overflow:visible; }
-.vnode:hover .vroles{ display:flex; }
 .vnode.is-active{ box-shadow:0 0 0 2px var(--orange) inset, 0 4px 16px rgba(208,74,2,.18); z-index:19; }
-
-/* role chips — hidden until the card is hovered */
-.vroles{
-  display:none; flex-wrap:wrap; gap:4px; margin-top:2px;
-  padding-top:7px; border-top:1px solid var(--rule);
-}
-.vrole{
-  font-size:9.5px; color:var(--ink-3); background:var(--paper-2);
-  border:1px solid var(--rule); border-radius:99px; padding:1px 7px;
-}
-.vbest{
-  display:none; margin-top:6px; font-size:10.5px; line-height:1.45;
-  color:var(--orange); font-style:italic;
-}
-.vnode:hover .vbest{ display:block; }
 
 /* tinted by how the step is performed, as in the deck */
 .vnode.k-process{ background:var(--grey-t);   border-color:var(--grey-line);   }
@@ -397,6 +377,52 @@ body[data-state="future"] .vnode.k-ai{ animation:nodeIn .26s ease-out backwards,
 .pill{
   color:var(--orange); font-size:10.5px; font-weight:500;
   padding:2px 8px; border:1px solid #E0D6F4; border-radius:99px;
+}
+
+/* ============================= STEP POPUP ============================= */
+.pop{
+  position:fixed; z-index:70; width:352px; max-width:92vw;
+  background:var(--white); border:1px solid var(--rule-2);
+  border-top:3px solid var(--ink-4);
+  border-radius:7px; padding:0 0 12px;
+  box-shadow:0 18px 48px rgba(26,26,28,.2);
+  opacity:0; pointer-events:none; transform:translateY(4px);
+  transition:opacity .14s, transform .14s;
+}
+.pop.open{ opacity:1; transform:none; }
+.pop.k-process { border-top-color:var(--grey-mid); }
+.pop.k-tool    { border-top-color:var(--burgundy); }
+.pop.k-ai      { border-top-color:var(--orange);   }
+.pop.k-decision{ border-top-color:var(--amber);    }
+.pop.k-sor     { border-top-color:var(--slate);    }
+
+.pop-top{ display:flex; align-items:center; gap:12px; padding:13px 16px 0; }
+.pop-cadence{ font-size:10.5px; color:var(--ink-4); }
+.pop h4{
+  margin:8px 0 5px; padding:0 16px;
+  font-family:var(--serif); font-size:17px; font-weight:600; line-height:1.28;
+}
+.pop-sum{ margin:0 0 12px; padding:0 16px; font-size:12.5px; color:var(--ink-2); line-height:1.55; }
+
+.pop-sec{ padding:11px 16px 0; margin-top:2px; border-top:1px solid var(--rule); }
+.pop-sec-h{
+  font-family:var(--serif); font-style:italic; font-size:12px;
+  color:var(--ink-3); margin-bottom:7px;
+}
+.pop-chips{ display:flex; flex-wrap:wrap; gap:5px; }
+.pop-chip{
+  font-size:10.5px; line-height:1.4; padding:3px 9px; border-radius:99px;
+  background:var(--paper-2); border:1px solid var(--rule); color:var(--ink-2);
+}
+.pop-sec.is-role  .pop-chip{ background:var(--grey-t);     border-color:var(--grey-line);     color:var(--ink-2); }
+.pop-sec.is-tool  .pop-chip,
+.pop-chip.is-tool { background:var(--burgundy-t); border-color:var(--burgundy-line); color:var(--burgundy); }
+.pop-sec.is-metric .pop-chip,
+.pop-chip.is-metric{ background:var(--orange-t);  border-color:var(--orange-line);   color:var(--orange); }
+
+.pop-cta{
+  margin:12px 16px 0; padding-top:10px; border-top:1px solid var(--rule);
+  font-size:11.5px; font-weight:600; color:var(--orange);
 }
 
 /* ============================= BEST PRACTICE + ROLES ============================= */
