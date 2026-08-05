@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual directions — pick one</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Segoe UI Variable Text","Segoe UI",-apple-system,Roboto,Helvetica,Arial,sans-serif;
+       background:#EFEDE9;color:#1A1A1C}
+  .chooser{position:sticky;top:0;z-index:50;background:#1A1A1C;color:#fff;padding:14px 26px;
+           display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .chooser b{font-size:14px;letter-spacing:.01em}
+  .chooser a{color:#FFB600;text-decoration:none;font-size:13px;border-bottom:1px solid transparent}
+  .chooser a:hover{border-bottom-color:currentColor}
+  .chooser span{margin-left:auto;font-size:12px;color:#9A9AA1}
+  .wrap{max-width:1500px;margin:0 auto;padding:30px 26px 60px}
+  .tag{display:inline-block;background:#1A1A1C;color:#fff;font-size:11px;letter-spacing:.12em;
+       text-transform:uppercase;padding:5px 12px;border-radius:2px;margin-bottom:12px}
+  .note{font-size:13px;color:#55555C;max-width:70ch;margin:0 0 20px;line-height:1.6}
+  .frame{border-radius:10px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+
+/* ============================ A — IGNITION ============================ */
+.a{background:#0B0B0D;color:#F2F2F4;padding:52px 48px 58px;position:relative;overflow:hidden}
+.a::before{content:"";position:absolute;top:-280px;left:-180px;width:720px;height:720px;border-radius:50%;
+  background:radial-gradient(circle,rgba(208,74,2,.34),transparent 62%);pointer-events:none}
+.a::after{content:"";position:absolute;bottom:-320px;right:-160px;width:640px;height:640px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,182,0,.14),transparent 64%);pointer-events:none}
+.a-in{position:relative;z-index:1}
+.a-eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#EB8C00;margin-bottom:18px}
+.a h1{margin:0 0 16px;font-size:60px;line-height:1.02;letter-spacing:-.035em;font-weight:700;max-width:17ch}
+.a h1 em{font-style:normal;color:#D04A02;
+  background:linear-gradient(90deg,#EB8C00,#D04A02);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent}
+.a p.lede{margin:0 0 38px;font-size:17px;color:#9B9BA3;max-width:56ch;line-height:1.6}
+.a-stats{display:flex;gap:52px;margin-bottom:42px;flex-wrap:wrap}
+.a-stat .n{font-size:40px;font-weight:700;letter-spacing:-.03em;color:#D04A02;line-height:1}
+.a-stat .l{font-size:11.5px;color:#7C7C85;margin-top:6px;letter-spacing:.06em;text-transform:uppercase}
+.a-flow{display:flex;align-items:stretch;gap:0}
+.a-card{flex:1;background:#141417;border:1px solid #26262C;border-radius:8px;padding:18px 18px 16px;position:relative}
+.a-card.dim{opacity:.5}
+.a-card.hot{border-color:rgba(208,74,2,.55);background:linear-gradient(160deg,rgba(208,74,2,.13),#141417);
+  box-shadow:0 0 0 1px rgba(208,74,2,.25),0 12px 40px rgba(208,74,2,.22)}
+.a-card .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7C7C85;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px}
+.a-card.hot .k{color:#EB8C00}
+.a-card .k i{width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block}
+.a-card h4{margin:0 0 7px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.a-card p{margin:0;font-size:12.5px;color:#8B8B94;line-height:1.5}
+.a-arrow{width:44px;display:grid;place-items:center;color:#3A3A42}
+.a-arrow.hot{color:#D04A02}
+
+/* ========================= B — EDITORIAL BOLD ========================= */
+.b{background:#fff;padding:54px 50px 58px}
+.b-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#D04A02;margin-bottom:16px}
+.b h1{margin:0 0 18px;font-family:"Sitka Text",Charter,Cambria,Georgia,serif;
+  font-size:62px;line-height:1.04;letter-spacing:-.025em;font-weight:600;max-width:19ch}
+.b h1 em{font-style:italic;color:#D04A02}
+.b .rule{height:5px;background:linear-gradient(90deg,#A32020,#D04A02 40%,#EB8C00 72%,#FFB600);
+  margin:26px 0 30px;border-radius:2px}
+.b p.lede{margin:0 0 34px;font-size:18px;line-height:1.62;color:#3E3E44;max-width:62ch}
+.b-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.b-card{border-top:5px solid #C9C6C0;padding:18px 0 0}
+.b-card.hot{border-top-color:#D04A02}
+.b-num{font-family:"Sitka Text",Charter,Georgia,serif;font-size:52px;line-height:1;font-weight:600;
+  color:#E6E3DE;margin-bottom:6px}
+.b-card.hot .b-num{color:#F6C9AC}
+.b-card .k{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:#84848C;margin-bottom:8px}
+.b-card.hot .k{color:#D04A02;font-weight:600}
+.b-card h4{margin:0 0 8px;font-family:"Sitka Text",Charter,Georgia,serif;font-size:20px;
+  font-weight:600;line-height:1.24;letter-spacing:-.01em}
+.b-card p{margin:0;font-size:13.5px;color:#4E4E56;line-height:1.6}
+.b-quote{margin:40px 0 0;padding:24px 0 0;border-top:1px solid #E3E0D9;
+  font-family:"Sitka Text",Charter,Georgia,serif;font-size:23px;font-style:italic;
+  line-height:1.42;color:#1A1A1C;max-width:44ch}
+
+/* ========================== C — SPLIT REVEAL ========================== */
+.c{background:#16161A;padding:0;position:relative}
+.c-head{padding:38px 44px 26px;color:#fff}
+.c-head h1{margin:0 0 10px;font-size:44px;line-height:1.06;letter-spacing:-.03em;font-weight:700}
+.c-head p{margin:0;color:#9B9BA3;font-size:15px;max-width:60ch;line-height:1.6}
+.c-split{display:grid;grid-template-columns:1fr 1fr;position:relative}
+.c-side{padding:26px 34px 40px}
+.c-old{background:#1C1C21}
+.c-new{background:linear-gradient(160deg,#2A150A,#1C1C21 70%)}
+.c-label{display:flex;align-items:center;gap:9px;margin-bottom:20px;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase}
+.c-old .c-label{color:#6E6E78}
+.c-new .c-label{color:#EB8C00}
+.c-label i{flex:1;height:1px;background:currentColor;opacity:.35}
+.c-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.c-item:last-child{border-bottom:0}
+.c-dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:6px;background:#4A4A54}
+.c-new .c-dot{background:#D04A02;box-shadow:0 0 0 4px rgba(208,74,2,.18)}
+.c-item h5{margin:0 0 3px;font-size:14px;font-weight:600;color:#E8E8EC}
+.c-old .c-item h5{color:#8E8E98}
+.c-item p{margin:0;font-size:12.5px;line-height:1.5;color:#77777F}
+.c-new .c-item p{color:#A9A9B2}
+.c-divider{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.16)}
+.c-handle{position:absolute;left:50%;top:44px;transform:translate(-50%,0);
+  background:#D04A02;color:#fff;font-size:11px;font-weight:600;letter-spacing:.08em;
+  padding:6px 14px;border-radius:99px;white-space:nowrap;text-transform:uppercase}
+.c-foot{display:flex;gap:44px;padding:22px 44px 34px;border-top:1px solid rgba(255,255,255,.09);flex-wrap:wrap}
+.c-foot .n{font-size:30px;font-weight:700;color:#EB8C00;line-height:1}
+.c-foot .l{font-size:11px;color:#7C7C85;text-transform:uppercase;letter-spacing:.07em;margin-top:5px}
+@media(max-width:900px){
+  .a h1,.b h1{font-size:38px}
+  .b-flow,.c-split{grid-template-columns:1fr}
+  .a-flow{flex-direction:column}
+  .a-arrow{width:auto;height:30px;transform:rotate(90deg)}
+  .c-divider,.c-handle{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="chooser">
+  <b>Three visual directions</b>
+  <a href="#a">A · Ignition</a>
+  <a href="#b">B · Editorial Bold</a>
+  <a href="#c">C · Split Reveal</a>
+  <span>Same content throughout — only the treatment changes</span>
+</div>
+
+<div class="wrap">
+
+  <!-- =============== A =============== -->
+  <div id="a">
+    <span class="tag">Direction A — Ignition</span>
+    <p class="note">Dark, cinematic, high contrast. The traditional steps sit dim and grey; anything a
+      frontier model touches glows orange. Built for a room with the lights down — a keynote or a
+      leadership pitch. Highest drama, lowest reading comfort for long sessions.</p>
+    <div class="frame">
+      <div class="a">
+        <div class="a-in">
+          <div class="a-eyebrow">Security Operations</div>
+          <h1>Most of the SOC day is <em>retrieval, not judgement</em>.</h1>
+          <p class="lede">Frontier models take the assembling, clustering and writing. People keep the
+            decisions that carry consequences.</p>
+          <div class="a-stats">
+            <div class="a-stat"><div class="n">8 of 11</div><div class="l">steps change</div></div>
+            <div class="a-stat"><div class="n">5+</div><div class="l">consoles per decision, today</div></div>
+            <div class="a-stat"><div class="n">0</div><div class="l">actions taken without a human gate</div></div>
+          </div>
+          <div class="a-flow">
+            <div class="a-card dim">
+              <div class="k"><i></i>Manual</div>
+              <h4>Tier 1 manual triage</h4>
+              <p>An analyst opens each alert, reads the raw event, decides escalate or close.</p>
+            </div>
+            <div class="a-arrow">→</div>
+            <div class="a-card hot">
+              <div class="k"><i></i>AI-automated</div>
+              <h4>AI triage agent</h4>
+              <p>Every alert enriched, clustered into a case and scored before a human sees it.</p>
+            </div>
+            <div class="a-arrow hot">→</div>
+            <div class="a-card hot">
+              <div class="k"><i></i>Human in the loop</div>
+              <h4>Governed action gate</h4>
+              <p>What may be automatic, what needs approval, what is never automated.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============== B =============== -->
+  <div id="b" style="margin-top:56px">
+    <span class="tag">Direction B — Editorial Bold</span>
+    <p class="note">Light and confident. Big serif headlines, oversized numerals, a strong PwC rule.
+      Reads like a well-made report rather than a dashboard. Calmer than A, holds up far better across
+      a long read, prints and screenshots cleanly into a deck.</p>
+    <div class="frame">
+      <div class="b">
+        <div class="b-eyebrow">Security Operations</div>
+        <h1>The old way spends its day <em>assembling context</em>.</h1>
+        <div class="rule"></div>
+        <p class="lede">Enrichment, clustering and documentation are retrieval and pattern work. Frontier
+          models absorb them, and the judgement calls stay where they belong.</p>
+        <div class="b-flow">
+          <div class="b-card">
+            <div class="b-num">01</div>
+            <div class="k">Manual · the old way</div>
+            <h4>Tier 1 manual triage</h4>
+            <p>An analyst opens each alert, reconstructs who the user is and whether the host matters,
+              then decides escalate or close.</p>
+          </div>
+          <div class="b-card hot">
+            <div class="b-num">02</div>
+            <div class="k">AI-automated</div>
+            <h4>AI triage agent</h4>
+            <p>Context assembled and alerts clustered into one case with a confidence score, before a
+              human is involved at all.</p>
+          </div>
+          <div class="b-card hot">
+            <div class="b-num">03</div>
+            <div class="k">Human in the loop</div>
+            <h4>Governed action gate</h4>
+            <p>Actions classified in advance into automatic, approval-required and human-only, with
+              tested rollback for each.</p>
+          </div>
+        </div>
+        <blockquote class="b-quote">The model proposes. The gate decides what it is allowed to do.</blockquote>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============== C =============== -->
+  <div id="c" style="margin-top:56px">
+    <span class="tag">Direction C — Split Reveal</span>
+    <p class="note">The contrast itself becomes the interface. Old on the left in grey, frontier on the
+      right in colour, side by side rather than behind a toggle. Makes the argument in one glance and is
+      the most obviously interactive — the divider can be dragged to wipe between them.</p>
+    <div class="frame">
+      <div class="c">
+        <div class="c-head">
+          <h1>Same process. Two different days.</h1>
+          <p>Every step on the left still exists on the right — it is just no longer a person doing it by hand.</p>
+        </div>
+        <div class="c-split">
+          <div class="c-side c-old">
+            <div class="c-label">The traditional way <i></i></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>Manual enrichment across consoles</h5>
+              <p>Five or more tools per decision. Copy and paste is the integration layer.</p></div></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>Tier 1 manual triage</h5>
+              <p>Quality varies by shift, by tenure and by queue pressure.</p></div></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>Runbook-driven containment</h5>
+              <p>Response time depends on who happens to be on shift.</p></div></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>Periodic metrics reporting</h5>
+              <p>Counts activity. Cannot tell you whether the work is any good.</p></div></div>
+          </div>
+          <div class="c-side c-new">
+            <div class="c-label">With frontier models <i></i></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>AI triage agent</h5>
+              <p>Enriched, clustered and scored before anyone opens it.</p></div></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>Agentic investigation</h5>
+              <p>A reviewable evidence chain, not a summary paragraph.</p></div></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>Governed action gate</h5>
+              <p>Automatic, approval-required and human-only, agreed in advance.</p></div></div>
+            <div class="c-item"><span class="c-dot"></span><div><h5>AI performance dashboard</h5>
+              <p>Precision, autonomy rate and override rate, trended.</p></div></div>
+          </div>
+          <div class="c-divider"></div>
+          <div class="c-handle">drag to compare</div>
+        </div>
+        <div class="c-foot">
+          <div><div class="n">8 of 11</div><div class="l">steps change</div></div>
+          <div><div class="n">3</div><div class="l">new controls required first</div></div>
+          <div><div class="n">1</div><div class="l">thing to build before any of it — the data layer</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
